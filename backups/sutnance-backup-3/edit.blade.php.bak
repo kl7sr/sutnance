@@ -1,0 +1,99 @@
+<x-app-layout>
+    <x-slot name="header">
+        <h2 class="font-semibold text-xl text-gray-800 leading-tight">Modifier l'utilisateur</h2>
+    </x-slot>
+
+    <style>
+        :root {
+            --SEAAL-primary: #003366;
+            --SEAAL-primary-light: #004488;
+            --SEAAL-green: #00A859;
+            --SEAAL-green-light: #00C96D;
+            --SEAAL-gray-bg: #F8F9FA;
+            --SEAAL-gray-border: #E9ECEF;
+            --SEAAL-gray-text: #6C757D;
+        }
+
+        .SEAAL-bg-primary { background-color: var(--SEAAL-primary); }
+        .SEAAL-bg-primary-light { background-color: var(--SEAAL-primary-light); }
+        .SEAAL-bg-green { background-color: var(--SEAAL-green); }
+        .SEAAL-bg-green-light { background-color: var(--SEAAL-green-light); }
+        .SEAAL-bg-gray { background-color: var(--SEAAL-gray-bg); }
+
+        .SEAAL-text-primary { color: var(--SEAAL-primary); }
+        .SEAAL-text-green { color: var(--SEAAL-green); }
+        .SEAAL-text-gray { color: var(--SEAAL-gray-text); }
+
+        .SEAAL-border { border-color: var(--SEAAL-gray-border); }
+        .SEAAL-border-primary { border-color: var(--SEAAL-primary); }
+        .SEAAL-border-green { border-color: var(--SEAAL-green); }
+
+        .SEAAL-ring-primary:focus { ring-color: var(--SEAAL-primary); }
+        .SEAAL-ring-green:focus { ring-color: var(--SEAAL-green); }
+
+        .SEAAL-shadow { box-shadow: 0 2px 8px rgba(0, 51, 102, 0.08); }
+        .SEAAL-shadow-lg { box-shadow: 0 4px 16px rgba(0, 51, 102, 0.12); }
+        /* Force visible blue borders for form controls */
+        input[type="text"], input[type="email"], input[type="password"], input[type="file"], textarea, select {
+            border-width: 2px !important;
+            border-style: solid !important;
+            border-color: var(--SEAAL-primary) !important;
+        }
+    </style>
+
+    <div class="flex min-h-screen bg-gray-50">
+        <x-sidebar />
+
+        <div class="flex-1 SEAAL-bg-gray p-8 pl-12">
+            <div class="max-w-2xl">
+                <div class="mb-8">
+                    <h1 class="text-3xl font-bold SEAAL-text-primary">Modifier {{ $user->name }}</h1>
+                </div>
+
+                <div class="bg-white SEAAL-shadow-lg rounded-2xl p-8 border-l-4 SEAAL-border-primary">
+                    <form method="POST" action="{{ route('users.update', $user) }}" class="space-y-6" enctype="multipart/form-data">
+                        @csrf
+                        @method('PUT')
+
+                        <div>
+                            <label class="block text-sm font-semibold SEAAL-text-primary mb-2">Nom</label>
+                            <input type="text" name="name" value="{{ old('name', $user->name) }}" required
+                                   class="w-full border-2 SEAAL-border rounded-lg px-4 py-3 focus:ring-2 SEAAL-ring-primary outline-none transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold SEAAL-text-primary mb-2">Email</label>
+                            <input type="email" name="email" value="{{ old('email', $user->email) }}" required
+                                   class="w-full border-2 SEAAL-border rounded-lg px-4 py-3 focus:ring-2 SEAAL-ring-primary outline-none transition">
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold SEAAL-text-primary mb-2">Rôle</label>
+                            <select name="role" class="w-full border-2 SEAAL-border rounded-lg px-4 py-3 focus:ring-2 SEAAL-ring-primary outline-none transition" required>
+                                <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>Utilisateur</option>
+                                <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Administrateur</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-semibold SEAAL-text-primary mb-2">Photo de profil (optionnel)</label>
+                            @if($user->profile_photo)
+                                <div class="mb-2">
+                                    <img src="{{ asset('storage/' . $user->profile_photo) }}" class="rounded-full object-cover" alt="avatar" style="width:40px;height:40px;object-fit:cover;border-radius:9999px;">
+                                </div>
+                            @endif
+                            <input type="file" name="profile_photo" accept="image/*"
+                                   class="w-full border-2 SEAAL-border rounded-lg px-4 py-2 focus:ring-2 SEAAL-ring-primary outline-none transition">
+                        </div>
+
+                        <div class="flex gap-4 pt-4">
+                            <button type="submit" class="flex-1 px-8 py-3 SEAAL-bg-primary text-white rounded-lg hover:SEAAL-bg-primary-light transition font-semibold">Enregistrer</button>
+                            <a href="{{ route('users.index') }}" class="flex-1 px-8 py-3 border-2 SEAAL-border text-gray-700 rounded-lg hover:bg-gray-100 transition font-semibold flex items-center justify-center">Annuler</a>
+                        </div>
+                    </form>
+                </div>
+
+            </div>
+        </div>
+    </div>
+</x-app-layout>

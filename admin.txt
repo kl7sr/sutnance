@@ -1,0 +1,10 @@
+php artisan tinker
+use App\Models\User;
+use Illuminate\Support\Facades\Hash;
+
+User::create([
+    'name' => 'admin',
+    'email' => 'admin@admin.com',
+    'password' => Hash::make('admin123'),
+    'role' => 'admin',
+]);

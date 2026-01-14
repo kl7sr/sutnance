@@ -1,0 +1,29 @@
+:root {
+    --SEAAL-primary: #003366;
+    --SEAAL-primary-light: #004488;
+    --SEAAL-green: #00A859;
+    --SEAAL-green-light: #00C96D;
+    --SEAAL-gray-bg: #F8F9FA;
+    --SEAAL-gray-border: #E9ECEF;
+    --SEAAL-gray-text: #6C757D;
+}
+
+.SEAAL-bg-primary { background-color: var(--SEAAL-primary); }
+.SEAAL-bg-primary-light { background-color: var(--SEAAL-primary-light); }
+.SEAAL-bg-green { background-color: var(--SEAAL-green); }
+.SEAAL-bg-green-light { background-color: var(--SEAAL-green-light); }
+.SEAAL-bg-gray { background-color: var(--SEAAL-gray-bg); }
+
+.SEAAL-text-primary { color: var(--SEAAL-primary); }
+.SEAAL-text-green { color: var(--SEAAL-green); }
+.SEAAL-text-gray { color: var(--SEAAL-gray-text); }
+
+.SEAAL-border { border-color: var(--SEAAL-gray-border); }
+.SEAAL-border-primary { border-color: var(--SEAAL-primary); }
+.SEAAL-border-green { border-color: var(--SEAAL-green); }
+
+.SEAAL-ring-primary:focus { ring-color: var(--SEAAL-primary); }
+.SEAAL-ring-green:focus { ring-color: var(--SEAAL-green); }
+
+.SEAAL-shadow { box-shadow: 0 2px 8px rgba(0, 51, 102, 0.08); }
+.SEAAL-shadow-lg { box-shadow: 0 4px 16px rgba(0, 51, 102, 0.12); }
