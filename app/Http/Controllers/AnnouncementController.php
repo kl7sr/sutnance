@@ -14,6 +14,12 @@ class AnnouncementController extends Controller
         return view('announcements', compact('announcements'));
     }
 
+    public function apiIndex()
+    {
+        $announcements = Announcement::latest()->get();
+        return response()->json($announcements);
+    }
+
     public function store(Request $request)
     {
         $request->validate([
@@ -48,4 +54,17 @@ class AnnouncementController extends Controller
 
         return Storage::disk('public')->download($announcement->attachment);
     }
+
+public function destroy(Announcement $announcement)
+{
+    if ($announcement->attachment && \Storage::disk('public')->exists($announcement->attachment)) {
+        \Storage::disk('public')->delete($announcement->attachment);
+    }
+
+ 
+    $announcement->delete();
+
+   
+    return redirect()->route('announcements.index')->with('success', 'Annonce supprimée avec succès');
+}
 }

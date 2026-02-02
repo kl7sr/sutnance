@@ -30,6 +30,8 @@ class SeaalSeeder extends Seeder
             'email' => 'admin@admin.com',
             'password' => Hash::make('admin123'),
             'role' => 'admin',
+            // edit zinou 
+            'email_verified_at' => now(),
         ]);
 
         $this->command->info('Admin account created: admin@admin.com / admin123');

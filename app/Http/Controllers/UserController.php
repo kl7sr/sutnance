@@ -19,7 +19,7 @@ class UserController extends Controller
         if (auth()->user()->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
-        return view('users.create');
+        return view('users.create-react');
     }
 
     /**
@@ -53,6 +53,15 @@ class UserController extends Controller
 
         User::create($data);
 
+        // Handle JSON requests (from React)
+        if ($request->wantsJson() || $request->expectsJson()) {
+            return response()->json([
+                'message' => 'Utilisateur créé avec succès!',
+                'success' => true
+            ], 201);
+        }
+
+        // Handle regular form submissions
         return redirect()->route('dashboard')->with('success', 'Utilisateur créé avec succès!');
     }
 

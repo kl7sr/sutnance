@@ -19,10 +19,19 @@ Route::middleware('auth')->group(function () {
     Route::get('/profile/edit', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
+    //zine edit annnouncement routs 
     
+Route::middleware('auth')->group(function () {
     Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
     Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+    Route::delete('/announcements/{announcement}', [AnnouncementController::class, 'destroy'])->name('announcements.destroy');
     Route::get('/announcements/{announcement}/download', [AnnouncementController::class, 'download'])->name('announcements.download');
+});
+
+// route controler 
+    // Route::get('/announcements', [AnnouncementController::class, 'index'])->name('announcements.index');
+    // Route::post('/announcements', [AnnouncementController::class, 'store'])->name('announcements.store');
+    // Route::get('/announcements/{announcement}/download', [AnnouncementController::class, 'download'])->name('announcements.download');
     
     Route::get('/chat/dm/{user}', [ChatController::class, 'dm'])->name('chat.dm');
     Route::post('/chat/create-group', [ChatController::class, 'createGroup'])->name('chat.create_group');

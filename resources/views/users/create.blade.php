@@ -18,7 +18,8 @@
     </style>
 
         <x-sidebar />
-
+// Edit hicham 
+<div class="flex min-h-screen bg-gray-200">
         <div class="flex-1 bg-gray-200 p-8 pl-12">
             <div class="max-w-2xl">
                 <!-- Header -->

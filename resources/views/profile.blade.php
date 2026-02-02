@@ -13,7 +13,7 @@
 
         <div class="flex-1 flex flex-col items-center justify-center p-8 bg-gray-200">
             
-            <!-- Profile Card (Messenger Style - SEAAL Edition) -->
+            <!-- Profile Card -->
             <div class="bg-white w-96 flex flex-col items-center py-10 px-6 rounded-3xl shadow-2xl shadow-blue-900/20" 
                  style="border: 4px solid #003366 !important; border-radius: 40px !important;">
                 
@@ -59,7 +59,7 @@
 
                 </div>
 
-                <!-- Info List (Accordion Style) -->
+                <!-- Info List -->
                 <div class="w-full space-y-3">
                     
                     <div class="w-full pb-2 mb-2" style="border-bottom: 2px solid #003366;">
@@ -85,7 +85,10 @@
                             </div>
                             <div class="flex-1">
                                 <p class="text-xs text-gray-500 uppercase font-bold tracking-wider">Membre Depuis</p>
-                                <p class="text-gray-900 font-semibold">{{ $user->created_at->format('d M Y') }}</p>
+                                <p class="text-gray-900 font-semibold">
+    {{ $user->created_at ? $user->created_at->format('d M Y') : 'Non défini' }}
+</p>
+
                             </div>
                         </div>
                     </div>

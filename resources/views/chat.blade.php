@@ -25,6 +25,25 @@
         .avatar-small { width: 32px !important; height: 32px !important; object-fit: cover; border-radius: 50%; }
         .avatar-sidebar { width: 40px !important; height: 40px !important; object-fit: cover; border-radius: 50%; }
         .avatar-large { width: 80px !important; height: 80px !important; object-fit: cover; border-radius: 50%; }
+        
+        /* Chat images styling */
+        .chat-image {
+            max-width: 300px;
+            max-height: 400px;
+            border-radius: 12px;
+            object-fit: cover;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .chat-image:hover {
+            transform: scale(1.02);
+        }
+        
+        .chat-image-container {
+            margin-top: 8px;
+            display: inline-block;
+        }
     </style>
 
     <div class="flex h-screen bg-gray-200 overflow-hidden">
@@ -61,7 +80,7 @@
                             <div class="flex items-center gap-3">
                                 <div class="relative">
                                     @if($photo)
-                                        <img src="{{ asset('storage/' . $photo) }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" class="border-2 border-white shadow-sm">
+                                        <img src="{{ storageUrl($photo) }}" style="width: 48px; height: 48px; border-radius: 50%; object-fit: cover;" class="border-2 border-white shadow-sm">
                                     @else
                                         <div style="width: 48px; height: 48px; border-radius: 50%;" class="{{ $c->type === 'group' ? 'main-green-bg' : 'main-blue-bg' }} text-white flex items-center justify-center font-bold text-lg shadow-sm">
                                             {{ substr($displayName, 0, 1) }}
@@ -117,7 +136,7 @@
                                             <input type="checkbox" name="participants[]" value="{{ $u->id }}" class="w-4 h-4 text-[#003366] rounded focus:ring-[#003366] border-gray-300">
                                             <div class="flex items-center gap-2">
                                                 @if($u->profile_photo)
-                                                    <img src="{{ asset('storage/' . $u->profile_photo) }}" class="rounded-full object-cover" style="width: 32px !important; height: 32px !important;">
+                                                    <img src="{{ storageUrl($u->profile_photo) }}" class="rounded-full object-cover" style="width: 32px !important; height: 32px !important;">
                                                 @else
                                                     <div class="rounded-full text-white flex items-center justify-center text-xs font-bold border-2 border-white" style="width: 32px !important; height: 32px !important; background-color: #00A859;">{{ substr($u->name, 0, 1) }}</div>
                                                 @endif
@@ -171,7 +190,7 @@
                                         @if(!$isMe)
                                             <button onclick='openProfile(event, @json($msg->user))' class="flex-shrink-0">
                                                 @if($msg->user->profile_photo)
-                                                    <img src="{{ asset('storage/' . $msg->user->profile_photo) }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" class="border border-gray-200">
+                                                    <img src="{{ storageUrl($msg->user->profile_photo) }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;" class="border border-gray-200">
                                                 @else
                                                     <div style="width: 32px; height: 32px; border-radius: 50%; background-color: #00A859;" class="flex items-center justify-center text-xs font-bold text-white border-2 border-white">
                                                         {{ substr($msg->user->name, 0, 1) }}
@@ -186,10 +205,21 @@
                                             <p class="text-sm text-gray-900 leading-relaxed">{{ $msg->content }}</p>
 
                                             @if($msg->attachment)
+                                                @php
+                                                    $isImage = in_array(strtolower(pathinfo($msg->attachment, PATHINFO_EXTENSION)), ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg']);
+                                                @endphp
                                                 <div class="mt-2 pt-2 border-t border-gray-200/50">
-                                                    <a href="{{ route('chat.download', $msg) }}" class="inline-flex items-center gap-2 text-xs font-medium main-blue-text hover:underline">
-                                                        📎 Pièce jointe
-                                                    </a>
+                                                    @if($isImage)
+                                                        <div class="chat-image-container">
+                                                            <a href="{{ storageUrl($msg->attachment) }}" target="_blank" rel="noopener noreferrer">
+                                                                <img src="{{ storageUrl($msg->attachment) }}" alt="Image partagée" class="chat-image">
+                                                            </a>
+                                                        </div>
+                                                    @else
+                                                        <a href="{{ route('chat.download', $msg) }}" class="inline-flex items-center gap-2 text-xs font-medium main-blue-text hover:underline">
+                                                            📎 Pièce jointe
+                                                        </a>
+                                                    @endif
                                                 </div>
                                             @endif
                                         </div>
@@ -270,7 +300,7 @@
                                 
                                 <div class="flex flex-col items-center mb-6 pb-6" style="border-bottom: 1px solid #E5E7EB;">
                                     @if($conversation->image)
-                                        <img src="{{ asset('storage/' . $conversation->image) }}" class="rounded-full object-cover border-4 border-[#003366] mb-4" style="width: 80px; height: 80px;">
+                                        <img src="{{ storageUrl($conversation->image) }}" class="rounded-full object-cover border-4 border-[#003366] mb-4" style="width: 80px; height: 80px;">
                                     @else
                                         <div class="rounded-full text-white flex items-center justify-center text-2xl font-bold mb-4 border-4 border-white" style="width: 80px; height: 80px; background-color: #00A859;">
                                             {{ substr($conversation->name, 0, 1) }}
@@ -299,7 +329,7 @@
                                         @foreach($conversation->users as $u)
                                             <a href="{{ route('users.show', $u) }}" class="flex items-center gap-3 hover:bg-gray-50 transition group py-3 px-2" style="border-bottom: 1px solid #F3F4F6;">
                                                 @if($u->profile_photo)
-                                                    <img src="{{ asset('storage/' . $u->profile_photo) }}" class="rounded-full object-cover" style="width: 32px !important; height: 32px !important;">
+                                                    <img src="{{ storageUrl($u->profile_photo) }}" class="rounded-full object-cover" style="width: 32px !important; height: 32px !important;">
                                                 @else
                                                     <div class="rounded-full text-white flex items-center justify-center text-xs font-bold border-2 border-white" style="width: 32px !important; height: 32px !important; background-color: #00A859;">{{ substr($u->name, 0, 1) }}</div>
                                                 @endif
@@ -333,7 +363,7 @@
                                 @if($u)
                                     <div class="flex flex-col items-center mb-6">
                                         @if($u->profile_photo)
-                                            <img src="{{ asset('storage/' . $u->profile_photo) }}" class="rounded-full object-cover border-4 border-white shadow mb-3" style="width: 80px; height: 80px;">
+                                            <img src="{{ storageUrl($u->profile_photo) }}" class="rounded-full object-cover border-4 border-white shadow mb-3" style="width: 80px; height: 80px;">
                                         @else
                                             <div class="rounded-full text-white flex items-center justify-center text-2xl font-bold mb-3 shadow border-4 border-white" style="width: 80px; height: 80px; background-color: #00A859;">
                                                 {{ substr($u->name, 0, 1) }}
@@ -464,7 +494,7 @@
             emailEl.textContent = user.email;
 
             if (user.profile_photo_path || user.profile_photo) {
-                imgEl.src = '/storage/' + (user.profile_photo_path || user.profile_photo);
+                imgEl.src = '{{ url("/storage") }}/' + (user.profile_photo_path || user.profile_photo);
                 imgEl.classList.remove('hidden');
                 initEl.classList.add('hidden');
             } else {
