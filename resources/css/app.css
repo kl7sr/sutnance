@@ -1,3 +1,21 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* Chat Image Styling */
+.chat-image-container {
+    display: inline-block;
+    margin-top: 8px;
+}
+
+.chat-image {
+    max-width: 200px;
+    border-radius: 12px;
+    object-fit: cover;
+    cursor: pointer;
+    transition: transform 0.2s ease-in-out;
+}
+
+.chat-image:hover {
+    transform: scale(1.02);
+}

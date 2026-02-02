@@ -50,31 +50,50 @@
                     </button>
                     
                     <div x-show="open" x-collapse class="px-6 pb-6">
-                        <form method="POST" action="{{ route('announcements.store') }}" class="space-y-5" enctype="multipart/form-data">
+                        <form method="POST" action="{{ route('announcements.store') }}" class="space-y-6" enctype="multipart/form-data">
                             @csrf
+                            
+                            <!-- Title Field -->
                             <div>
-                                <label class="block text-sm font-bold main-text-blue mb-2">Titre</label>
-                                <input type="text" name="title" placeholder="Entrez le titre de l'annonce"
-                                       class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#003366] focus:border-[#003366] outline-none transition"
-                                       style="border-color: #E5E7EB;"
-                                       required>
+                                <label class="block text-sm font-semibold main-text-blue mb-2">Titre <span class="text-red-500">*</span></label>
+                                <input 
+                                    type="text" 
+                                    name="title" 
+                                    placeholder="Entrez le titre de l'annonce"
+                                    class="w-full bg-gray-100 border-2 border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-[#003366] outline-none transition-all duration-200"
+                                    required>
                             </div>
+                            
+                            <!-- Content Field -->
                             <div>
-                                <label class="block text-sm font-bold main-text-blue mb-2">Contenu</label>
-                                <textarea name="content" placeholder="Entrez le contenu de l'annonce" rows="4"
-                                          class="w-full border border-gray-300 rounded-xl px-4 py-3 focus:ring-2 focus:ring-[#003366] focus:border-[#003366] outline-none transition resize-none"
-                                          style="border-color: #E5E7EB;"
-                                          required></textarea>
+                                <label class="block text-sm font-semibold main-text-blue mb-2">Contenu <span class="text-red-500">*</span></label>
+                                <textarea 
+                                    name="content" 
+                                    placeholder="Entrez le contenu de l'annonce" 
+                                    rows="6"
+                                    class="w-full bg-gray-100 border-2 border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-[#003366] outline-none transition-all duration-200 resize-none"
+                                    required></textarea>
                             </div>
+                            
+                            <!-- Attachment Field -->
                             <div>
-                                <label class="block text-sm font-bold main-text-blue mb-2">Fichier joint (optionnel)</label>
-                                <input type="file" name="attachment" accept="*/*" 
-                                       class="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-[#003366] hover:file:bg-blue-100">
+                                <label class="block text-sm font-semibold main-text-blue mb-2">
+                                    Fichier joint 
+                                    <span class="text-gray-500 font-normal">(optionnel)</span>
+                                </label>
+                                <input 
+                                    type="file" 
+                                    name="attachment" 
+                                    accept="*/*" 
+                                    class="w-full text-sm text-gray-600 bg-gray-100 border-2 border-transparent rounded-xl px-4 py-3 focus:bg-white focus:border-[#003366] outline-none transition-all duration-200 file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#003366] file:text-white hover:file:bg-[#004488] file:cursor-pointer file:transition">
                             </div>
-                            <div class="flex justify-end pt-2">
-                                <button type="submit"
-                                        class="px-8 py-3 rounded-xl font-bold text-white shadow-lg transition transform active:scale-95 flex items-center gap-2"
-                                        style="background-color: #00A859;">
+                            
+                            <!-- Submit Button -->
+                            <div class="pt-2">
+                                <button 
+                                    type="submit"
+                                    class="w-full px-8 py-4 rounded-xl font-bold text-white shadow-lg transition-all duration-200 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+                                    style="background-color: #003366; font-size: 1rem;">
                                     <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/>
                                     </svg>

@@ -5,13 +5,17 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Announcement;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class AnnouncementController extends Controller
 {
-    public function index()
+    public function index(): Response
     {
         $announcements = Announcement::latest()->get();
-        return view('announcements', compact('announcements'));
+        return Inertia::render('AnnonceList', [
+            'announcements' => $announcements,
+        ]);
     }
 
     public function apiIndex()
@@ -39,7 +43,8 @@ class AnnouncementController extends Controller
             'attachment' => $attachmentPath,
         ]);
 
-        return redirect()->route('announcements.index');
+        // Redirect to dashboard to refresh Inertia props with updated announcements
+        return redirect()->route('dashboard');
     }
 
     public function download(Announcement $announcement)
@@ -55,16 +60,17 @@ class AnnouncementController extends Controller
         return Storage::disk('public')->download($announcement->attachment);
     }
 
-public function destroy(Announcement $announcement)
-{
-    if ($announcement->attachment && \Storage::disk('public')->exists($announcement->attachment)) {
-        \Storage::disk('public')->delete($announcement->attachment);
+    public function destroy(Announcement $announcement)
+    {
+        // Delete the attachment file if it exists
+        if ($announcement->attachment && Storage::disk('public')->exists($announcement->attachment)) {
+            Storage::disk('public')->delete($announcement->attachment);
+        }
+
+        // Delete the announcement record
+        $announcement->delete();
+
+        // Return back to refresh Inertia props
+        return back()->with('success', 'Annonce supprimée avec succès');
     }
-
- 
-    $announcement->delete();
-
-   
-    return redirect()->route('announcements.index')->with('success', 'Annonce supprimée avec succès');
-}
 }

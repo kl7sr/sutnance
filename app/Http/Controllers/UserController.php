@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class UserController extends Controller
 {
@@ -14,12 +16,12 @@ class UserController extends Controller
     /**
      * Show the form for creating a new user (admin only).
      */
-    public function create()
+    public function create(): Response
     {
         if (auth()->user()->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
-        return view('users.create-react');
+        return Inertia::render('UserCreate');
     }
 
     /**
@@ -68,25 +70,29 @@ class UserController extends Controller
     /**
      * Display a listing of all users (admin only).
      */
-    public function index()
+    public function index(): Response
     {
         if (auth()->user()->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
         $users = User::all();
-        return view('users.user-list', compact('users'));
+        return Inertia::render('UserList', [
+            'users' => $users,
+        ]);
     }
 
     /**
      * Show the form for editing the specified user (admin only).
      */
-    public function edit(User $user)
+    public function edit(User $user): Response
     {
         if (auth()->user()->role !== 'admin') {
             abort(403, 'Unauthorized');
         }
 
-        return view('users.edit', compact('user'));
+        return Inertia::render('UserEdit', [
+            'user' => $user,
+        ]);
     }
 
     /**
@@ -142,8 +148,10 @@ class UserController extends Controller
         return redirect()->route('users.index')->with('success', 'Utilisateur supprimé.');
     }
 
-    public function show(User $user)
+    public function show(User $user): Response
     {
-        return view('users.show', compact('user'));
+        return Inertia::render('UserShow', [
+            'user' => $user,
+        ]);
     }
 }

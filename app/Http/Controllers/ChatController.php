@@ -7,10 +7,12 @@ use App\Models\Conversation;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Inertia\Response;
 
 class ChatController extends Controller
 {
-    public function index(Conversation $conversation = null) {
+    public function index(Conversation $conversation = null): Response {
         $user = auth()->user();
         
         // Get all conversations for this user
@@ -21,7 +23,7 @@ class ChatController extends Controller
             ->latest('updated_at')
             ->get();
 
-        $messages = collect();
+        $messages = [];
 
         if ($conversation) {
             // AUTHORIZATION CHECK
@@ -35,13 +37,20 @@ class ChatController extends Controller
                 ->latest()
                 ->take(50)
                 ->get()
-                ->reverse();
+                ->reverse()
+                ->values()
+                ->toArray();
         }
 
         // For creating groups (Admin only)
         $allUsers = User::where('id', '!=', $user->id)->orderBy('name')->get();
 
-        return view('chat', compact('conversations', 'conversation', 'messages', 'allUsers'));
+        return Inertia::render('Chat', [
+            'conversations' => $conversations,
+            'conversation' => $conversation,
+            'messages' => $messages,
+            'allUsers' => $allUsers,
+        ]);
     }
 
     public function send(Request $request, Conversation $conversation) {
