@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { Link, usePage } from '@inertiajs/react';
 import {
   LayoutDashboard,
@@ -16,10 +16,27 @@ import {
 import { motion, AnimatePresence } from 'framer-motion';
 import { safeRoute } from '../../utils/routeHelper';
 
-export default function Sidebar({ user }) {
-  const { component } = usePage();
-  const [collapsed, setCollapsed] = useState(false);
+export default function Sidebar({ user, collapsed: collapsedProp, onCollapseToggle, unreadCount = 0, hasUnreadAnnonce = false }) {
+  const { component, props } = usePage();
+  const initialHasUnread = !!props?.auth?.has_unread_announcements;
+  const [hasNewAnnouncement, setHasNewAnnouncement] = useState(initialHasUnread);
+  const [internalCollapsed, setInternalCollapsed] = useState(false);
+  const collapsed = collapsedProp !== undefined ? collapsedProp : internalCollapsed;
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  // Sync hasNewAnnouncement from props when they change
+  useEffect(() => {
+    setHasNewAnnouncement(!!props?.auth?.has_unread_announcements);
+  }, [props?.auth?.has_unread_announcements]);
+
+  // Clear when announcements marked read (from AnnonceList)
+  useEffect(() => {
+    const handler = () => setHasNewAnnouncement(false);
+    window.addEventListener('announcements-marked-read', handler);
+    return () => window.removeEventListener('announcements-marked-read', handler);
+  }, []);
+
+  const showAnnouncementBadge = hasNewAnnouncement || hasUnreadAnnonce;
 
   // Safe route helper function
   const getRoute = (routeName, fallback) => {
@@ -44,41 +61,46 @@ export default function Sidebar({ user }) {
     }
   };
 
-  // Links configuration with safe routing
-  const links = useMemo(() => [
-    {
-      name: 'Tableau de bord',
-      href: getRoute('dashboard', '/dashboard'),
-      icon: LayoutDashboard,
-      active: component === 'Dashboard'
-    },
-    {
-      name: 'Utilisateurs',
-      href: getRoute('users.index', '/users'),
-      icon: Users,
-      active: component.startsWith('User')
-    },
-    {
-      name: 'Annonces',
-      href: getRoute('announcements.index', '/announcements'),
-      icon: Megaphone,
-      active: component.startsWith('Annonce')
-    },
-    {
-      name: 'Chat',
-      href: getRoute('chat.index', '/chat'),
-      icon: MessageSquare,
-      active: component.startsWith('Chat')
-    },
-    {
-      name: 'Paramètres',
-      href: getRoute('settings', '/settings'),
-      icon: Settings,
-      active: component === 'Settings'
-    },
-  ], [component]);
+  // Links configuration with safe routing - hide 'Utilisateurs' for non-admin (user) role
+  const isAdmin = user?.role === 'admin';
+  const links = useMemo(() => {
+    const baseLinks = [
+      {
+        name: 'Tableau de bord',
+        href: getRoute('dashboard', '/dashboard'),
+        icon: LayoutDashboard,
+        active: component === 'Dashboard',
+      },
+      ...(isAdmin ? [{
+        name: 'Utilisateurs',
+        href: getRoute('users.index', '/users'),
+        icon: Users,
+        active: component.startsWith('User')
+      }] : []),
+      {
+        name: 'Annonces',
+        href: getRoute('announcements.index', '/announcements'),
+        icon: Megaphone,
+        active: component.startsWith('Annonce'),
+        badge: hasUnreadAnnonce,
+      },
+      {
+        name: 'Chat',
+        href: getRoute('chat.index', '/chat'),
+        icon: MessageSquare,
+        active: component.startsWith('Chat')
+      },
+      {
+        name: 'Paramètres',
+        href: getRoute('settings', '/settings'),
+        icon: Settings,
+        active: component === 'Settings'
+      },
+    ];
+    return baseLinks;
+  }, [component, isAdmin, showAnnouncementBadge]);
 
-  const toggleCollapse = () => setCollapsed(!collapsed);
+  const toggleCollapse = () => (onCollapseToggle ? onCollapseToggle() : setInternalCollapsed((c) => !c));
   const toggleMobile = () => setMobileOpen(!mobileOpen);
 
   const sidebarWidth = collapsed ? 'w-20' : 'w-72';
@@ -110,7 +132,7 @@ export default function Sidebar({ user }) {
 
       {/* Sidebar Container */}
       <motion.aside
-        className={`fixed top-0 left-0 h-screen bg-[#003366] text-white z-40 shadow-xl transition-all duration-300 ease-in-out
+        className={`sidebar fixed top-0 left-0 h-screen bg-[#003366] text-white z-40 shadow-xl transition-all duration-300 ease-in-out
                     ${mobileOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}
                     ${sidebarWidth}
                     flex flex-col
@@ -143,7 +165,7 @@ export default function Sidebar({ user }) {
         </div>
 
         {/* Navigation Links */}
-        <nav className="flex-1 overflow-y-auto py-6 px-3 space-y-2">
+        <nav className="sidebar flex-1 overflow-y-auto py-6 px-3 space-y-2">
           {links.map((link) => (
             <Link
               key={link.name}
@@ -155,7 +177,19 @@ export default function Sidebar({ user }) {
                 }
                             `}
             >
-              <link.icon size={22} className={`${link.active ? 'text-white' : 'text-gray-400 group-hover:text-white transition-colors'}`} />
+              <span className="relative shrink-0">
+                <link.icon size={22} className={`${link.active ? 'text-white' : 'text-gray-400 group-hover:text-white transition-colors'}`} />
+                {/* Red badge for unread messages on Chat link */}
+                {link.name === 'Chat' && unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 min-w-[16px] h-[16px] px-1 flex items-center justify-center bg-red-500 text-white text-[10px] font-bold rounded-full">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
+                {/* Red dot for unread announcements (Annonces only; persists until user visits Annonces page) */}
+                {link.badge && (
+                  <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full" title="Nouvelle annonce" />
+                )}
+              </span>
 
               {!collapsed && (
                 <motion.span

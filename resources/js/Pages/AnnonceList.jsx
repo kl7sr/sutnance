@@ -1,14 +1,34 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { router, usePage } from '@inertiajs/react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { AnnonceListSkeleton } from '../Components/Skeleton';
+import MainLayout from '../Components/UI/MainLayout';
+import axios from 'axios';
 
-function AnnonceList({ announcements: announcementsProp }) {
+function AnnonceList({ announcements: announcementsProp, embedded = false }) {
   const { props } = usePage();
   // Get announcements from props (passed from controller) or from prop
   const list = announcementsProp || props.announcements || [];
+
+  // Debug: log backend data when list is empty to verify what's being sent
+  if (list.length === 0 || announcementsProp === undefined) {
+    console.log('[AnnonceList] props.announcements:', props?.announcements);
+    console.log('[AnnonceList] announcementsProp:', announcementsProp);
+    console.log('[AnnonceList] list:', list);
+  }
   const [loading, setLoading] = useState(false);
   const [hoveredCard, setHoveredCard] = useState(null);
+
+  // Mark all announcements as read when user visits Annonces page (/announcements); red dot disappears
+  useEffect(() => {
+    if (embedded) return;
+    const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content');
+    axios.post('/announcements/mark-read', {}, {
+      headers: { 'X-CSRF-TOKEN': token, 'Accept': 'application/json' },
+    }).then(() => {
+      window.dispatchEvent(new CustomEvent('announcements-marked-read'));
+    }).catch(() => {});
+  }, [embedded]);
 
   const handleDelete = (id) => {
     if (window.confirm('Êtes-vous sûr de vouloir supprimer cette annonce ?')) {
@@ -30,22 +50,28 @@ function AnnonceList({ announcements: announcementsProp }) {
     window.open(`/announcements/${id}/download`, '_blank');
   };
 
+  const listContent = (
+    <div className="w-full">
+      <h2
+        className="text-4xl font-bold text-[#003366] mb-10"
+        style={{
+          fontFamily: 'Inter, system-ui, sans-serif',
+          letterSpacing: '-0.02em',
+          lineHeight: '1.3'
+        }}
+      >
+        Liste des Annonces
+      </h2>
+      <AnnonceListSkeleton count={6} />
+    </div>
+  );
+
   // Loading state with skeleton
   if (loading && list.length === 0) {
-    return (
-      <div className="w-full">
-        <h2
-          className="text-4xl font-bold text-[#003366] mb-10"
-          style={{
-            fontFamily: 'Inter, system-ui, sans-serif',
-            letterSpacing: '-0.02em',
-            lineHeight: '1.3'
-          }}
-        >
-          Liste des Annonces
-        </h2>
-        <AnnonceListSkeleton count={6} />
-      </div>
+    return embedded ? listContent : (
+      <MainLayout>
+        {listContent}
+      </MainLayout>
     );
   }
 
@@ -83,7 +109,7 @@ function AnnonceList({ announcements: announcementsProp }) {
     }
   };
 
-  return (
+  const mainContent = (
     <motion.div
       initial="hidden"
       animate="visible"
@@ -215,6 +241,12 @@ function AnnonceList({ announcements: announcementsProp }) {
         </div>
       )}
     </motion.div>
+  );
+
+  return embedded ? mainContent : (
+    <MainLayout>
+      {mainContent}
+    </MainLayout>
   );
 }
 

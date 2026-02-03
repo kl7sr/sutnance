@@ -3,6 +3,33 @@ import { useForm, Head } from '@inertiajs/react';
 import { motion } from 'framer-motion';
 import MainLayout from '../Components/UI/MainLayout';
 
+/** FloatingLabel - defined outside component to prevent re-creation on each render (avoids focus loss) */
+const FloatingLabel = ({ children, label, htmlFor, hasValue, isFocused, error }) => (
+  <div className="relative">
+    {children}
+    <label
+      htmlFor={htmlFor}
+      className={`absolute left-4 transition-all duration-300 pointer-events-none font-sans ${hasValue || isFocused
+        ? 'top-2 text-xs text-seaal-light font-medium'
+        : 'top-4 text-sm text-gray-500'
+        } ${error ? 'text-red-500' : ''}`}
+    >
+      {label}
+    </label>
+  </div>
+);
+
+/** Stable animation variants - outside component to avoid re-creation */
+const cardVariants = {
+  hidden: { opacity: 0, y: 50, scale: 0.95 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    scale: 1,
+    transition: { type: 'spring', stiffness: 100, damping: 15, duration: 0.6 }
+  }
+};
+
 function UserCreate() {
   const { data, setData, post, processing, errors, reset } = useForm({
     name: '',
@@ -71,41 +98,6 @@ function UserCreate() {
 
   const handlePhotoClick = () => {
     fileInputRef.current?.click();
-  };
-
-  const FloatingLabel = ({ children, label, htmlFor, hasValue, isFocused, error }) => (
-    <div className="relative">
-      {children}
-      <label
-        htmlFor={htmlFor}
-        className={`absolute left-4 transition-all duration-300 pointer-events-none font-sans ${hasValue || isFocused
-          ? 'top-2 text-xs text-seaal-light font-medium'
-          : 'top-4 text-sm text-gray-500'
-          } ${error ? 'text-red-500' : ''}`}
-      >
-        {label}
-      </label>
-    </div>
-  );
-
-  // Animation variants for the card
-  const cardVariants = {
-    hidden: {
-      opacity: 0,
-      y: 50,
-      scale: 0.95
-    },
-    visible: {
-      opacity: 1,
-      y: 0,
-      scale: 1,
-      transition: {
-        type: 'spring',
-        stiffness: 100,
-        damping: 15,
-        duration: 0.6
-      }
-    }
   };
 
   return (

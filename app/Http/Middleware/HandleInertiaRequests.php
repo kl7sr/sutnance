@@ -35,10 +35,24 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        if ($request->user() && $request->is('announcements*')) {
+            $request->user()->markAnnouncementsAsRead();
+        }
+
         return [
             ...parent::share($request),
             'auth' => [
                 'user' => $request->user(),
+                'unread_messages_count' => $request->user()?->unreadMessagesCount() ?? 0,
+                'unread_count' => $request->user()?->unreadMessagesCount() ?? 0,
+                'unread_announcements_count' => $request->user()?->unreadAnnouncementsCount() ?? 0,
+                'has_unread_announcements' => ($request->user()?->unreadAnnouncementsCount() ?? 0) > 0,
+                'recent_notifications' => $request->user()?->recentNotifications(5) ?? [],
+            ],
+            'broadcasting' => [
+                'driver' => config('broadcasting.default'),
+                'pusher_key' => config('broadcasting.connections.pusher.key'),
+                'pusher_cluster' => config('broadcasting.connections.pusher.options.cluster'),
             ],
         ];
     }
